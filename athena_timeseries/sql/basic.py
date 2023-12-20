@@ -110,7 +110,7 @@ FROM
         stmt,
         database=glue_db_name,
         boto3_session=boto3_session,
-        max_cache_seconds=max_cache_expires,
+        # max_cache_seconds=max_cache_expires,
         ctas_approach=ctas_approach,
     )
 
