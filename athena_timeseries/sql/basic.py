@@ -117,3 +117,58 @@ FROM
     df["dt"] = pd.to_datetime(df["dt"])
 
     return df.set_index(["dt", "symbol"])[field].unstack().sort_index()
+
+def query_raw(
+    boto3_session,
+    glue_db_name: str,
+    table_name: str,
+    field: str,
+    symbols: Optional[List[str]] = None,
+    start_dt: Optional[str] = None,
+    end_dt: Optional[str] = None,
+    max_cache_expires: int = 1,
+    partition_key: str = "partition_dt",
+    partition_interval: str = "quarterly",
+    type: str = "Timestamp",
+    ctas_approach: bool = False,
+) -> pd.DataFrame:
+    # _assert_dt(start_dt)
+    # _assert_dt(end_dt)
+
+    where = to_where(
+        start_dt=start_dt,
+        end_dt=end_dt,
+        partition_key=partition_key,
+        partition_interval=partition_interval,
+        type=type,
+    )
+
+    if symbols is not None and len(symbols) > 0:
+        predicated = "'" + "','".join(symbols) + "'"
+
+        where += [f"symbol in ({predicated})"]
+
+    stmt = f"""
+SELECT 
+    {field}, 
+    symbol, 
+    dt
+FROM
+    {table_name}
+        """
+
+    if len(where) > 0:
+        condition = " AND ".join(where)
+        stmt += f"WHERE {condition}"
+
+    df = awswrangler.athena.read_sql_query(
+        stmt,
+        database=glue_db_name,
+        boto3_session=boto3_session,
+        # max_cache_seconds=max_cache_expires,
+        ctas_approach=ctas_approach,
+    )
+
+    df["dt"] = pd.to_datetime(df["dt"])
+
+    return df
