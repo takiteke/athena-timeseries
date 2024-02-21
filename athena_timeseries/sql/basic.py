@@ -115,9 +115,11 @@ FROM
     )
 
     df["dt"] = pd.to_datetime(df["dt"])
+    # df.set_index(["dt", "symbol"])[field].unstack().sort_index()
+    df = df.groupby(["dt", "symbol"])[field].last().unstack().sort_index()
 
-    return df.set_index(["dt", "symbol"])[field].unstack().sort_index()
-
+    return df
+    
 def query_raw(
     boto3_session,
     glue_db_name: str,
