@@ -2,7 +2,7 @@ from typing import Optional, Dict, List
 import pandas as pd
 
 from .sql.resample import resample_query, Expr
-from .sql.basic import query
+from .sql.basic import query, query_raw
 
 from .uploader import upload
 
