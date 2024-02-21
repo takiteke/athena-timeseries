@@ -35,6 +35,25 @@ class AthenaTimeSeries:
             end_dt=end_dt,
         )
 
+    def query_raw(
+        self,
+        *,
+        table_name: str,
+        field: str,
+        symbols: Optional[List[str]] = None,
+        start_dt: Optional[str] = None,
+        end_dt: Optional[str] = None,
+    ) -> pd.DataFrame:
+        return query_raw(
+            boto3_session=self.boto3_session,
+            glue_db_name=self.glue_db_name,
+            table_name=table_name,
+            field=field,
+            symbols=symbols,
+            start_dt=start_dt,
+            end_dt=end_dt,
+        )
+
     def resample_query(
         self,
         *,
